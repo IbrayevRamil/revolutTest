@@ -1,4 +1,12 @@
 package com.revolut.task.rest.service;
 
-public class AccountService {
+import com.revolut.task.rest.model.Account;
+
+public interface AccountService {
+
+    Account add(Account newAccount);
+
+    Account get(long accountId);
+
+
 }
