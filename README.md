@@ -17,3 +17,4 @@ http://localhost:8080/account/create - creates new account
 http://localhost:8080/account/transfer - transfer money from one account to another.
     JSON request body example: {"fromAccount": "0", "toAccount": "1", "amount": 2000}
 http://localhost:8080/account/{id} - gets account with specifed {id}
+
