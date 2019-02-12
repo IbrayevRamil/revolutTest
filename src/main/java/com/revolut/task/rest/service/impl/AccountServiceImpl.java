@@ -2,7 +2,6 @@ package com.revolut.task.rest.service.impl;
 
 import com.revolut.task.rest.Messages;
 import com.revolut.task.rest.dao.AccountDao;
-import com.revolut.task.rest.dao.impl.AccountDaoImpl;
 import com.revolut.task.rest.dto.AccountDto;
 import com.revolut.task.rest.dto.TransferDto;
 import com.revolut.task.rest.model.Account;
@@ -17,17 +16,19 @@ import java.util.concurrent.atomic.AtomicLong;
 public class AccountServiceImpl implements AccountService {
 
     private static AtomicLong uniqueIdCounter = new AtomicLong(0L);
-    private final AccountDao accountDao = new AccountDaoImpl();
+    private final AccountDao accountDao;
+
+    public AccountServiceImpl(AccountDao accountDao) {
+        this.accountDao = accountDao;
+    }
 
     @Override
-    public String add(AccountDto accountDto) {
+    public Account add(AccountDto accountDto) {
         Account account = new Account(
                 uniqueIdCounter.getAndIncrement(),
                 accountDto.getName(),
                 new BigDecimal(accountDto.getBalance()));
-        return accountDao.create(account) != null
-                ? String.format(Messages.SUCCESS_CREATION.getMsg(), account.getId())
-                : Messages.DUPLICATE_ACCOUNT.getMsg();
+        return accountDao.create(account);
     }
 
     @Override

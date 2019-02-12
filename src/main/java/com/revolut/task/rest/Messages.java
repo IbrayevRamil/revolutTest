@@ -6,7 +6,7 @@ public enum Messages {
     DUPLICATE_ACCOUNT("Account already exists"),
     NO_EXISTING_ACCOUNT("Account doesn't exist"),
     INSUFFICIENT_MONEY("Transfer couldn't be completed due to insufficient money on the account."),
-    SUCCESS_CREATION("Account has been successfully created. ID: %d."),
+    SUCCESS_CREATION("Account has been successfully created.\n"),
     UNKNOWN_ERROR_TRANSFER("Transfer couldn't be completed due to unknown error. Please, try again later.");
 
     private final String msg;

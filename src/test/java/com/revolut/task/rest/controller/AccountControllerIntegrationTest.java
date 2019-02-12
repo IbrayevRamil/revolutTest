@@ -2,6 +2,7 @@ package com.revolut.task.rest.controller;
 
 import com.google.gson.Gson;
 import com.revolut.task.rest.Messages;
+import com.revolut.task.rest.dao.impl.AccountDaoImpl;
 import com.revolut.task.rest.datasource.Storage;
 import com.revolut.task.rest.model.Account;
 import com.revolut.task.rest.service.impl.AccountServiceImpl;
@@ -28,7 +29,7 @@ public class AccountControllerIntegrationTest {
     @BeforeClass
     public static void setUp() throws Exception {
         Spark.port(8080);
-        new AccountController(new AccountServiceImpl());
+        new AccountController(new AccountServiceImpl(new AccountDaoImpl()));
     }
 
     @After
@@ -44,10 +45,12 @@ public class AccountControllerIntegrationTest {
     @Test
     public void create() throws Exception {
         String requestBody = "{\"name\": \"visa\", \"balance\": 23223}";
+        String expectedResponseBody = "Account has been successfully created.\n" +
+                "{\"id\":0,\"name\":\"visa\",\"balance\":23223}";
         TestResponse response = request("POST", "/account/create", requestBody);
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.status);
-        Assert.assertEquals("Account has been successfully created. ID: 0.", response.body);
+        Assert.assertEquals(expectedResponseBody.length(), response.body.length());
     }
 
     @Test
@@ -61,13 +64,21 @@ public class AccountControllerIntegrationTest {
     }
 
     @Test
+    public void getFail() throws Exception {
+        TestResponse response = request("GET", "/account/0", "");
+        Assert.assertNotNull(response);
+        Assert.assertEquals(404, response.status);
+        Assert.assertEquals(Messages.NO_EXISTING_ACCOUNT.getMsg(), response.body);
+    }
+
+    @Test
     public void transfer() throws Exception {
         Account from = new Account(0L, "visa", new BigDecimal(2000));
         Account to = new Account(1L, "mastercard", new BigDecimal(2000));
         TESTING_STORAGE.put(from.getId(), from);
         TESTING_STORAGE.put(to.getId(), to);
-        String reqiestBody = "{\"fromAccount\": \"0\", \"toAccount\": \"1\", \"amount\": 2000}";
-        TestResponse response = request("POST", "/account/transfer", reqiestBody);
+        String requestBody = "{\"fromAccount\": \"0\", \"toAccount\": \"1\", \"amount\": 2000}";
+        TestResponse response = request("POST", "/account/transfer", requestBody);
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.status);
         Assert.assertEquals(String.format(Messages.SUCCESS_TRANSFER.getMsg(), "0", "1", "2000"), response.body);
@@ -89,7 +100,9 @@ public class AccountControllerIntegrationTest {
                 osw.close();
             }
             connection.connect();
-            String body = IOUtils.toString(connection.getInputStream());
+            String body = connection.getResponseCode() < 299
+                    ? IOUtils.toString(connection.getInputStream())
+                    : IOUtils.toString(connection.getErrorStream());
             return new TestResponse(connection.getResponseCode(), body);
         } catch (IOException e) {
             e.printStackTrace();

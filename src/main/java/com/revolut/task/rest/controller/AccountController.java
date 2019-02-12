@@ -22,7 +22,7 @@ public class AccountController {
          */
         Spark.post("/account/create", (req, res) -> {
             AccountDto accountDto = gson.fromJson(req.body(), AccountDto.class);
-            return accountService.add(accountDto);
+            return Messages.SUCCESS_CREATION.getMsg() + gson.toJson(accountService.add(accountDto));
         });
 
         /*

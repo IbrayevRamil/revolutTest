@@ -14,7 +14,7 @@ public interface AccountService {
      * @param accountDto accountDto
      * @return Result of operation
      */
-    String add(AccountDto accountDto);
+    Account add(AccountDto accountDto);
 
     /**
      * Gets account from storage
