@@ -35,7 +35,6 @@ public class AccountController {
                 return Messages.NO_EXISTING_ACCOUNT.getMsg();
             }
             return gson.toJson(account);
-
         });
 
         /*
