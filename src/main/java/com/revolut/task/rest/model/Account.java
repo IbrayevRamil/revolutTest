@@ -3,6 +3,9 @@ package com.revolut.task.rest.model;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+/**
+ * Account entity
+ */
 public class Account {
 
     private final long id;
@@ -28,7 +31,7 @@ public class Account {
         return name;
     }
 
-    public BigDecimal getBalance() {
+    public synchronized BigDecimal getBalance() {
         return balance;
     }
 

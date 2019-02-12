@@ -1,5 +1,8 @@
 package com.revolut.task.rest.dto;
 
+/**
+ * Account data transfer object
+ */
 public class AccountDto {
 
     private String name;

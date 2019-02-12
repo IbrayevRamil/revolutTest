@@ -1,21 +1,25 @@
 package com.revolut.task.rest.dao.impl;
 
+import com.revolut.task.rest.Messages;
 import com.revolut.task.rest.dao.AccountDao;
 import com.revolut.task.rest.datasource.Storage;
 import com.revolut.task.rest.model.Account;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentMap;
 
 public class AccountDaoImpl implements AccountDao {
 
-    private static final ConcurrentMap<Long, Account> ACCOUNT_STORAGE = Storage.ACCOUNT_STORAGE.getInstance();
+    private static final Map<Long, Account> ACCOUNT_STORAGE = Storage.ACCOUNT_STORAGE.getInstance();
 
     @Override
     public Account create(Account newAccount) {
         Objects.requireNonNull(newAccount, "newAccount couldn't be null");
-        return ACCOUNT_STORAGE.putIfAbsent(newAccount.getId(), newAccount);
+        if (ACCOUNT_STORAGE.putIfAbsent(newAccount.getId(), newAccount) != null) {
+            throw new IllegalArgumentException(Messages.DUPLICATE_ACCOUNT.getMsg());
+        }
+        return newAccount;
     }
 
     @Override

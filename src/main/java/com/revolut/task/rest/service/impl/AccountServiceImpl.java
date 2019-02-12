@@ -4,10 +4,13 @@ import com.revolut.task.rest.Messages;
 import com.revolut.task.rest.dao.AccountDao;
 import com.revolut.task.rest.dao.impl.AccountDaoImpl;
 import com.revolut.task.rest.dto.AccountDto;
+import com.revolut.task.rest.dto.TransferDto;
 import com.revolut.task.rest.model.Account;
 import com.revolut.task.rest.service.AccountService;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -22,9 +25,9 @@ public class AccountServiceImpl implements AccountService {
                 uniqueIdCounter.getAndIncrement(),
                 accountDto.getName(),
                 new BigDecimal(accountDto.getBalance()));
-        return accountDao.create(account) == null
+        return accountDao.create(account) != null
                 ? String.format(Messages.SUCCESS_CREATION.getMsg(), account.getId())
-                : Messages.UNKNOWN_ERROR.getMsg();
+                : Messages.DUPLICATE_ACCOUNT.getMsg();
     }
 
     @Override
@@ -33,14 +36,16 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public String transferMoney(String from, String to, String amount) {
-        Account fromAccount = accountDao.read(Long.parseLong(from));
-        Account toAccount = accountDao.read(Long.parseLong(to));
-        Objects.requireNonNull(fromAccount, String.format("Account with ID: %s doesn't exist", from));
-        Objects.requireNonNull(to, String.format("Account with ID: %s doesn't exist", to));
-        BigDecimal bigDecimalAmount = new BigDecimal(amount);
-        synchronized (fromAccount) {
-            synchronized (toAccount) {
+    public String transferMoney(TransferDto transferDto) {
+        Account fromAccount = accountDao.read(Long.parseLong(transferDto.getFromAccount()));
+        Account toAccount = accountDao.read(Long.parseLong(transferDto.getToAccount()));
+        Objects.requireNonNull(fromAccount, String.format("Account with ID: %s doesn't exist", transferDto.getFromAccount()));
+        Objects.requireNonNull(toAccount, String.format("Account with ID: %s doesn't exist", transferDto.getToAccount()));
+        BigDecimal bigDecimalAmount = new BigDecimal(transferDto.getAmount());
+        Account[] sortedAccounts = {fromAccount, toAccount};
+        Arrays.sort(sortedAccounts, Comparator.comparingLong(Account::getId));
+        synchronized (sortedAccounts[0]) {
+            synchronized (sortedAccounts[1]) {
                 if (fromAccount.getBalance().compareTo(bigDecimalAmount) >= 0) {
                     accountDao.transferMoney(fromAccount, toAccount, bigDecimalAmount);
                 } else {
@@ -48,6 +53,9 @@ public class AccountServiceImpl implements AccountService {
                 }
             }
         }
-        return String.format(Messages.SUCCESS_TRANSFER.getMsg(), from, to, amount);
+        return String.format(Messages.SUCCESS_TRANSFER.getMsg(),
+                transferDto.getFromAccount(),
+                transferDto.getToAccount(),
+                transferDto.getAmount());
     }
 }
