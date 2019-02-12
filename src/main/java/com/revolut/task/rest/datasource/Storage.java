@@ -7,9 +7,9 @@ import java.util.concurrent.ConcurrentMap;
 
 public enum Storage {
 
-    ACCOUNT__STORAGE;
+    ACCOUNT_STORAGE;
 
-    private ConcurrentMap<Long, Account> instance = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, Account> instance = new ConcurrentHashMap<>();
 
     public ConcurrentMap<Long, Account> getInstance() {
         return instance;

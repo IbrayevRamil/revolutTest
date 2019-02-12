@@ -12,5 +12,6 @@ repositories {
 }
 
 dependencies {
-    implementation "com.sparkjava:spark-core:2.7.2"
+    implementation "com.sparkjava:spark-core:+"
+    implementation "com.google.code.gson:gson:+"
 }

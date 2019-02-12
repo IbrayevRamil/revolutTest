@@ -1,14 +1,13 @@
 package com.revolut.task.rest.service;
 
+import com.revolut.task.rest.dto.AccountDto;
 import com.revolut.task.rest.model.Account;
-
-import java.math.BigDecimal;
 
 public interface AccountService {
 
-    Account add(Account newAccount);
+    String add(AccountDto accountDto);
 
-    Account get(long accountId);
+    Account get(String accountId);
 
-    String transferMoney(long from, long to, BigDecimal amount);
+    String transferMoney(String from, String to, String amount);
 }
