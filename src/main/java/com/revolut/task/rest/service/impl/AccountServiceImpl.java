@@ -6,9 +6,9 @@ import com.revolut.task.rest.dao.impl.AccountDaoImpl;
 import com.revolut.task.rest.dto.AccountDto;
 import com.revolut.task.rest.model.Account;
 import com.revolut.task.rest.service.AccountService;
-import spark.utils.Assert;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class AccountServiceImpl implements AccountService {
@@ -36,8 +36,8 @@ public class AccountServiceImpl implements AccountService {
     public String transferMoney(String from, String to, String amount) {
         Account fromAccount = accountDao.read(Long.parseLong(from));
         Account toAccount = accountDao.read(Long.parseLong(to));
-        Assert.notNull(fromAccount, String.format("Account with ID: %s doesn't exist", from));
-        Assert.notNull(to, String.format("Account with ID: %s doesn't exist", to));
+        Objects.requireNonNull(fromAccount, String.format("Account with ID: %s doesn't exist", from));
+        Objects.requireNonNull(to, String.format("Account with ID: %s doesn't exist", to));
         BigDecimal bigDecimalAmount = new BigDecimal(amount);
         synchronized (fromAccount) {
             synchronized (toAccount) {
