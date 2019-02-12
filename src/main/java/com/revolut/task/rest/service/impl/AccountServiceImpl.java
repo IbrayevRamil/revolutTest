@@ -29,19 +29,20 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account get(String accountId) {
-        return accountDao.read(new Long(accountId));
+        return accountDao.read(Long.parseLong(accountId));
     }
 
     @Override
     public String transferMoney(String from, String to, String amount) {
-        Account fromAccount = accountDao.read(new Long(from));
-        Account toAccount = accountDao.read(new Long(to));
+        Account fromAccount = accountDao.read(Long.parseLong(from));
+        Account toAccount = accountDao.read(Long.parseLong(to));
         Assert.notNull(fromAccount, String.format("Account with ID: %s doesn't exist", from));
         Assert.notNull(to, String.format("Account with ID: %s doesn't exist", to));
+        BigDecimal bigDecimalAmount = new BigDecimal(amount);
         synchronized (fromAccount) {
             synchronized (toAccount) {
-                if (fromAccount.getBalance().compareTo(toAccount.getBalance()) >= 0) {
-                    accountDao.transferMoney(fromAccount, toAccount, new BigDecimal(amount));
+                if (fromAccount.getBalance().compareTo(bigDecimalAmount) >= 0) {
+                    accountDao.transferMoney(fromAccount, toAccount, bigDecimalAmount);
                 } else {
                     return Messages.INSUFFICIENT_MONEY.getMsg();
                 }

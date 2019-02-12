@@ -14,4 +14,5 @@ repositories {
 dependencies {
     implementation "com.sparkjava:spark-core:+"
     implementation "com.google.code.gson:gson:+"
+    testImplementation "junit:junit:+"
 }
