@@ -6,6 +6,7 @@ import com.revolut.task.rest.dto.AccountDto;
 import com.revolut.task.rest.dto.TransferDto;
 import com.revolut.task.rest.model.Account;
 import com.revolut.task.rest.service.AccountService;
+import spark.utils.Assert;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -40,9 +41,13 @@ public class AccountServiceImpl implements AccountService {
     public String transferMoney(TransferDto transferDto) {
         Account fromAccount = accountDao.read(Long.parseLong(transferDto.getFromAccount()));
         Account toAccount = accountDao.read(Long.parseLong(transferDto.getToAccount()));
-        Objects.requireNonNull(fromAccount, String.format("Account with ID: %s doesn't exist", transferDto.getFromAccount()));
-        Objects.requireNonNull(toAccount, String.format("Account with ID: %s doesn't exist", transferDto.getToAccount()));
+        Objects.requireNonNull(fromAccount,
+                String.format("Account with ID: %s doesn't exist", transferDto.getFromAccount()));
+        Objects.requireNonNull(toAccount,
+                String.format("Account with ID: %s doesn't exist", transferDto.getToAccount()));
         BigDecimal bigDecimalAmount = new BigDecimal(transferDto.getAmount());
+        Assert.isTrue(bigDecimalAmount.compareTo(new BigDecimal(0)) > 0,
+                "Amount can't be negative");
         Account[] sortedAccounts = {fromAccount, toAccount};
         Arrays.sort(sortedAccounts, Comparator.comparingLong(Account::getId));
         synchronized (sortedAccounts[0]) {
